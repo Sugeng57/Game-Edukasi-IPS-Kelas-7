@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduQuest IPS Kelas 7 - Kehidupan Sosial & Lingkungan Sekitar</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @keyframes pulse-subtle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .pulse-anim {
+            animation: pulse-subtle 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header Navigation -->
+    <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/80 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="app.showHome()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 text-white font-bold text-xl">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg text-white tracking-tight leading-none">EduQuest <span class="text-indigo-400">IPS 7</span></h1>
+                    <p class="text-xs text-slate-400 font-medium mt-0.5">Edisi Kurikulum Merdeka - Tema 01</p>
+                </div>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-2">
+                <button onclick="app.showHome()" id="nav-home" class="px-3 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-slate-700 text-indigo-400 bg-slate-800">
+                    <i class="fa-solid fa-house mr-1.5"></i> Beranda
+                </button>
+                <button onclick="app.showInstructions()" id="nav-guide" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-all">
+                    <i class="fa-solid fa-circle-info mr-1.5"></i> Petunjuk
+                </button>
+                <button onclick="app.showSheetSettings()" id="nav-sheet" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-all">
+                    <i class="fa-solid fa-file-excel mr-1.5 text-emerald-400"></i> Integrasi Spreadsheet
+                </button>
+                <button onclick="app.showSummaryMaterial()" id="nav-material" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-all">
+                    <i class="fa-solid fa-book-open mr-1.5 text-amber-400"></i> Rangkuman Materi
+                </button>
+            </nav>
+
+            <div class="flex items-center gap-2">
+                <button onclick="app.toggleSound()" id="sound-btn" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-200 transition-all" title="Suara On/Off">
+                    <i class="fa-solid fa-volume-high" id="sound-icon"></i>
+                </button>
+                <button onclick="app.toggleMobileMenu()" class="md:hidden w-10 h-10 rounded-xl bg-slate-700 flex items-center justify-center text-slate-200">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-800 border-b border-slate-700 px-4 py-3 space-y-2">
+            <button onclick="app.showHome(); app.toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-slate-200 hover:bg-slate-700">
+                <i class="fa-solid fa-house w-6 text-indigo-400"></i> Beranda
+            </button>
+            <button onclick="app.showInstructions(); app.toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-slate-200 hover:bg-slate-700">
+                <i class="fa-solid fa-circle-info w-6 text-indigo-400"></i> Petunjuk Game
+            </button>
+            <button onclick="app.showSheetSettings(); app.toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-slate-200 hover:bg-slate-700">
+                <i class="fa-solid fa-file-excel w-6 text-emerald-400"></i> Integrasi Spreadsheet
+            </button>
+            <button onclick="app.showSummaryMaterial(); app.toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-slate-200 hover:bg-slate-700">
+                <i class="fa-solid fa-book-open w-6 text-amber-400"></i> Rangkuman Materi
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+        
+        <!-- ================= HOME VIEW ================= -->
+        <section id="view-home" class="space-y-8">
+            <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-indigo-900/80 via-slate-800 to-slate-900 border border-slate-700 p-6 sm:p-10 shadow-2xl">
+                <div class="absolute -right-10 -bottom-10 w-80 h-80 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="max-w-2xl relative z-10 space-y-4">
+                    <span class="px-3 py-1 bg-indigo-500/20 border border-indigo-400/30 rounded-full text-xs font-semibold text-indigo-300 tracking-wide uppercase inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-award text-amber-400"></i> Quiz 30 Soal IPS Kelas 7 Kurikulum Merdeka
+                    </span>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold text-white leading-tight">
+                        Uji Pemahaman <br/><span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-violet-300">Kehidupan Sosial & Lingkungan</span>
+                    </h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Jelajahi materi letak lokasi, konektivitas antarruang, perubahan iklim, potensi bencana geologis, kegiatan ekonomi, interaksi sosial, hingga konsep sejarah dalam bentuk game edukasi yang interaktif.
+                    </p>
+                    
+                    <div class="pt-2 flex flex-wrap gap-4 items-center">
+                        <button onclick="app.startQuizSetup()" class="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/40 hover:shadow-indigo-500/60 transition-all flex items-center gap-2 transform active:scale-95">
+                            <i class="fa-solid fa-play"></i> Mulai Bermain (30 Soal)
+                        </button>
+                        <button onclick="app.showInstructions()" class="px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-semibold rounded-2xl transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-book"></i> Baca Petunjuk
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Grid Cards -->
+            <div>
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-indigo-400"></i> Topik Pilihan dalam Game (30 Soal Total)
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 hover:border-indigo-500/50 transition-all">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-lg mb-3">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-100">Lokasi & Ruang</h4>
+                        <p class="text-xs text-slate-400 mt-1">Lokasi absolut/relatif, peta digital, konektivitas antarwilayah.</p>
+                        <span class="mt-3 inline-block text-xs font-semibold text-blue-400">5 Soal Pembahasan</span>
+                    </div>
+
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 hover:border-indigo-500/50 transition-all">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg mb-3">
+                            <i class="fa-solid fa-cloud-sun-rain"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-100">Iklim & Geologi</h4>
+                        <p class="text-xs text-slate-400 mt-1">Cuaca vs iklim, perubahan iklim, 3 lempeng tektonik, gempa & tsunami.</p>
+                        <span class="mt-3 inline-block text-xs font-semibold text-emerald-400">8 Soal Pembahasan</span>
+                    </div>
+
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 hover:border-indigo-500/50 transition-all">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-lg mb-3">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-100">Kegiatan Ekonomi</h4>
+                        <p class="text-xs text-slate-400 mt-1">Produksi (4 faktor), Distribusi (3 jalur), dan Konsumsi masyarakat.</p>
+                        <span class="mt-3 inline-block text-xs font-semibold text-amber-400">8 Soal Pembahasan</span>
+                    </div>
+
+                    <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 hover:border-indigo-500/50 transition-all">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-lg mb-3">
+                            <i class="fa-solid fa-people-group"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-100">Sosial & Sejarah</h4>
+                        <p class="text-xs text-slate-400 mt-1">Interaksi Asosiatif/Disosiatif, Unsur & Sumber Sejarah (Lisan/Benda).</p>
+                        <span class="mt-3 inline-block text-xs font-semibold text-purple-400">9 Soal Pembahasan</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spreadsheet Sync Status Banner -->
+            <div id="home-sheet-status" class="bg-slate-800/50 border border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-file-csv"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm text-white">Status Penyimpanan Spreadsheet Real-Time</h4>
+                        <p id="sheet-status-text" class="text-xs text-slate-400">Menggunakan Mode Lokal (Hasil disimpan di Browser & siap di-ekspor ke Excel/CSV). Sambungkan ke Google Sheets Web App untuk simpan otomatis real-time!</p>
+                    </div>
+                </div>
+                <button onclick="app.showSheetSettings()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-xs font-bold rounded-xl text-slate-200 transition-all whitespace-nowrap">
+                    <i class="fa-solid fa-gear mr-1"></i> Pengaturan Spreadsheet
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= SETUP / INPUT NAME MODAL ================= -->
+        <section id="view-setup" class="hidden max-w-lg mx-auto bg-slate-800 border border-slate-700 rounded-3xl p-6 sm:p-8 shadow-2xl my-8">
+            <div class="text-center space-y-2 mb-6">
+                <div class="w-14 h-14 bg-indigo-600/20 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto text-2xl font-bold">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white">Data Peserta Didik</h3>
+                <p class="text-xs text-slate-400">Isi data diri terlebih dahulu agar nilai Anda tercatat dengan benar pada sistem laporan/spreadsheet.</p>
+            </div>
+
+            <form onsubmit="app.confirmSetup(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Lengkap Peserta *</label>
+                    <input type="text" id="player-name" required placeholder="Contoh: Ahmad Rizki" class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Kelas *</label>
+                        <select id="player-class" required class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm">
+                            <option value="7-A">7-A</option>
+                            <option value="7-B">7-B</option>
+                            <option value="7-C">7-C</option>
+                            <option value="7-D">7-D</option>
+                            <option value="7-E">7-E</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">No. Absen / NIS *</label>
+                        <input type="text" id="player-no" required placeholder="Contoh: 04" class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Mode Game</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer border border-indigo-500/80 bg-indigo-900/30 rounded-xl p-3 flex items-center gap-2">
+                            <input type="radio" name="game-mode" value="exam" checked class="text-indigo-600 focus:ring-indigo-500">
+                            <div>
+                                <span class="block text-xs font-bold text-white">Mode Ujian (30 Soal)</span>
+                                <span class="text-[10px] text-slate-400">Dilengkapi Timer & Skor Akhir</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer border border-slate-700 bg-slate-900/50 rounded-xl p-3 flex items-center gap-2">
+                            <input type="radio" name="game-mode" value="practice" class="text-indigo-600 focus:ring-indigo-500">
+                            <div>
+                                <span class="block text-xs font-bold text-white">Mode Santai</span>
+                                <span class="text-[10px] text-slate-400">Pembahasan langsung</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="app.showHome()" class="w-1/3 py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-xl text-sm transition-all">
+                        Batal
+                    </button>
+                    <button type="submit" class="w-2/3 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+                        Mulai Game <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ================= INSTRUCTIONS VIEW ================= -->
+        <section id="view-instructions" class="hidden space-y-6">
+            <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 sm:p-8 space-y-6">
+                <div class="flex items-center gap-4 border-b border-slate-700 pb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold text-2xl">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-white">Petunjuk & Aturan Game Edukasi</h3>
+                        <p class="text-xs text-slate-400">Panduan lengkap pelaksanaan kuis 30 soal IPS Kelas 7 Tema 1</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-700/60 space-y-2">
+                        <div class="text-indigo-400 text-xl font-bold flex items-center gap-2">
+                            <span class="w-7 h-7 bg-indigo-600/30 rounded-lg flex items-center justify-center text-xs">1</span>
+                            Jumlah & Komposisi Soal
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Game terdiri dari **30 Soal Pilihan Ganda** yang menguji seluruh sub-bab Tema 1 (Lokasi, Konektivitas, Iklim, Geologi, Bencana, Ekonomi, Interaksi Sosial, dan Sejarah).
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-700/60 space-y-2">
+                        <div class="text-indigo-400 text-xl font-bold flex items-center gap-2">
+                            <span class="w-7 h-7 bg-indigo-600/30 rounded-lg flex items-center justify-center text-xs">2</span>
+                            Sistem Penilaian
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            - Jawaban Benar: +3.33 Poin (Total Skor Maksimal: 100).<br/>
+                            - Setiap soal yang dijawab memberikan umpan balik visual dan audio.<br/>
+                            - Penyelesaian tepat waktu memberikan poin bonus kecepatan.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-700/60 space-y-2">
+                        <div class="text-emerald-400 text-xl font-bold flex items-center gap-2">
+                            <span class="w-7 h-7 bg-emerald-600/30 rounded-lg flex items-center justify-center text-xs">3</span>
+                            Penyimpanan Real-Time
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Hasil jawaban, skor total, nama peserta, dan waktu penyelesaian secara otomatis dikirim ke **Google Spreadsheet** guru atau disimpan dalam rekap CSV lokal.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/80 p-4 rounded-2xl border border-amber-500/30 flex items-start gap-3">
+                    <i class="fa-solid fa-lightbulb text-amber-400 text-xl mt-0.5"></i>
+                    <div class="text-xs text-slate-300 leading-relaxed">
+                        <strong class="text-amber-300">Tips Mengerjakan:</strong> Baca setiap soal dengan teliti. Jika Anda memilih Mode Ujian, timer akan berjalan. Di akhir game Anda dapat meninjau kunci jawaban beserta **Pembahasan Detail** untuk setiap nomor soal!
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-2">
+                    <button onclick="app.startQuizSetup()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2">
+                        Mengerti, Mulai Sekarang <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SPREADSHEET INTEGRATION SETTINGS ================= -->
+        <section id="view-sheet-settings" class="hidden space-y-6">
+            <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 sm:p-8 space-y-6 max-w-4xl mx-auto">
+                <div class="flex items-center gap-4 border-b border-slate-700 pb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center font-bold text-2xl">
+                        <i class="fa-solid fa-file-excel"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-white">Integrasi Real-Time Google Spreadsheet</h3>
+                        <p class="text-xs text-slate-400">Hubungkan game kuis ini dengan Google Spreadsheet Anda secara gratis tanpa API key rumit.</p>
+                    </div>
+                </div>
+
+                <!-- Input AppScript URL -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-semibold text-slate-200">Google Apps Script Web App URL Endpoint:</label>
+                    <div class="flex gap-2">
+                        <input type="url" id="sheet-url-input" placeholder="https://script.google.com/macros/s/AKfycbx.../exec" class="flex-grow px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500">
+                        <button onclick="app.saveSheetUrl()" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-400">Jika dikosongkan, game tetap menyimpan rekap nilai di memori browser dan dapat di-download dalam format .CSV kapan saja.</p>
+                </div>
+
+                <!-- Step by step instructions to get endpoint -->
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-700 space-y-4">
+                    <h4 class="font-bold text-sm text-amber-400 flex items-center gap-2">
+                        <i class="fa-solid fa-list-ol"></i> Cara Membuat Link Google Spreadsheet Real-time (Hanya 2 Menit):
+                    </h4>
+                    <ol class="text-xs text-slate-300 space-y-2 list-decimal list-inside leading-relaxed">
+                        <li>Buka <a href="https://sheets.new" target="_blank" class="text-indigo-400 underline">Google Sheets Baru</a> di akun Google Anda.</li>
+                        <li>Klik menu **Ekstensi (Extensions)** &rarr; **Apps Script**.</li>
+                        <li>Hapus seluruh kode yang ada, lalu **Copy-Paste kode di bawah ini**:</li>
+                    </ol>
+
+                    <div class="relative">
+                        <pre class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-[11px] text-emerald-300 font-mono overflow-x-auto custom-scrollbar select-all">
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  
+  // Jika sheet masih kosong, buat Header
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Tanggal & Waktu", "Nama Peserta", "Kelas", "No. Absen", "Skor Total", "Benar", "Salah", "Mode", "Waktu Pengerjaan"]);
+  }
+  
+  // Tambahkan baris data nilai siswa secara real-time
+  sheet.appendRow([
+    data.timestamp || new Date().toLocaleString("id-ID"),
+    data.name,
+    data.class,
+    data.no,
+    data.score,
+    data.correct,
+    data.wrong,
+    data.mode,
+    data.timeSpent
+  ]);
+  
+  return ContentService.createTextOutput(JSON.stringify({"result": "success"}))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+                    </div>
+
+                    <ol start="4" class="text-xs text-slate-300 space-y-2 list-decimal list-inside leading-relaxed">
+                        <li>Klik tombol **Terapkan (Deploy)** di kanan atas &rarr; **Penerapan baru (New deployment)**.</li>
+                        <li>Pilih Jenis: **Aplikasi Web (Web App)**.</li>
+                        <li>Setel **Siapa yang memiliki akses (Who has access)** menjadi: <strong class="text-emerald-400">Siapa saja (Anyone)</strong>.</li>
+                        <li>Klik **Terapkan (Deploy)**, izinkan akses, lalu salin **URL Aplikasi Web** yang didapat ke dalam kotak di atas!</li>
+                    </ol>
+                </div>
+
+                <div class="flex justify-between items-center pt-2">
+                    <button onclick="app.testSheetConnection()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-xl">
+                        <i class="fa-solid fa-vial mr-1"></i> Uji Koneksi Endpoint
+                    </button>
+                    <button onclick="app.showHome()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl">
+                        Kembali ke Beranda
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SUMMARY MATERIAL / RANGKUMAN MATERI ================= -->
+        <section id="view-material" class="hidden space-y-6">
+            <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 sm:p-8 space-y-6">
+                <div class="flex items-center gap-4 border-b border-slate-700 pb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-600/20 text-amber-400 flex items-center justify-center font-bold text-2xl">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-white">Rangkuman Ringkas Tema 01</h3>
+                        <p class="text-xs text-slate-400">Kehidupan Sosial dan Kondisi Lingkungan Sekitar (IPS Kelas 7)</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs leading-relaxed text-slate-300">
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700 space-y-2">
+                        <h4 class="font-bold text-sm text-indigo-400">1. Lokasi Absolut vs Relatif</h4>
+                        <p>• <strong>Lokasi Absolut:</strong> Letak tetap berdasarkan sistem koordinat lintang & bujur. Indonesia: 6°LU-11°LS dan 95°BT-141°BT.</p>
+                        <p>• <strong>Lokasi Relatif:</strong> Letak yang berubah-ubah sesuai kondisi sekitarnya (contoh: harga tanah naik di Penajam Paser Utara setelah penetapan IKN).</p>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700 space-y-2">
+                        <h4 class="font-bold text-sm text-indigo-400">2. Konektivitas Antarruang (Ullman)</h4>
+                        <p>• <strong>Regional Complementarity:</strong> Saling melengkapi karena perbedaan hasil sumber daya (contoh: Brebes komoditas Bawang, Wonosobo komoditas Kentang).</p>
+                        <p>• <strong>Intervening Opportunity:</strong> Kesempatan berintervensi yang melemahkan interaksi dua wilayah karena adanya wilayah ketiga pengganti.</p>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700 space-y-2">
+                        <h4 class="font-bold text-sm text-emerald-400">3. Kondisi Geologis & Bencana</h4>
+                        <p>• Indonesia dilalui 2 jalur pegunungan: Sirkum Pasifik dan Sirkum Mediterania.</p>
+                        <p>• Diapit 3 lempeng tektonik utama: Eurasia, Indo-Australia, dan Pasifik.</p>
+                        <p>• Berdampak positif (tanah subur, material bangunan, mineral) dan negatif (rawan gempa, gunung meletus, tsunami hingga 900 km/jam).</p>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700 space-y-2">
+                        <h4 class="font-bold text-sm text-amber-400">4. Kegiatan Ekonomi</h4>
+                        <p>• <strong>Produksi:</strong> Menambah manfaat barang. Membutuhkan 4 faktor: Alam, Tenaga Kerja, Modal, dan Keahlian/Entrepreneurship.</p>
+                        <p>• <strong>Distribusi:</strong> Langsung, Semilangsung (lewat toko resmi milik produsen), dan Tidak Langsung (lewat distributor/agen).</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button onclick="app.startQuizSetup()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/30">
+                        Siap Uji Kuis (30 Soal) <i class="fa-solid fa-play ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= QUIZ GAME ACTIVE VIEW ================= -->
+        <section id="view-quiz" class="hidden space-y-6">
+            <!-- Quiz Header Bar -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-lg">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 flex items-center justify-center font-bold text-sm" id="quiz-badge">
+                        1/30
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400 font-semibold" id="quiz-category-label">Kategori Soal</div>
+                        <div class="text-sm font-bold text-white flex items-center gap-2">
+                            <span id="player-display-name">Siswa</span>
+                            <span class="text-[10px] px-2 py-0.5 bg-slate-700 rounded-md text-slate-300" id="player-display-class">7-A</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Timer & Score Counter -->
+                <div class="flex items-center gap-4">
+                    <div class="bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-clock text-amber-400 text-xs"></i>
+                        <span id="quiz-timer" class="font-mono font-bold text-sm text-slate-200">00:00</span>
+                    </div>
+
+                    <div class="bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                        <span id="quiz-score" class="font-bold text-sm text-indigo-400">0 Poin</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-700">
+                <div id="quiz-progress-bar" class="bg-gradient-to-r from-indigo-500 to-violet-500 h-full rounded-full transition-all duration-300" style="width: 3.33%;"></div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl relative overflow-hidden">
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-indigo-400 tracking-wider uppercase" id="question-number-title">Soal No. 1</span>
+                        <span class="text-xs text-slate-400" id="difficulty-badge">IPS VII Kurikulum Merdeka</span>
+                    </div>
+                    <h3 id="question-text" class="text-base sm:text-xl font-bold text-white leading-relaxed">
+                        Teks pertanyaan soal akan tampil di sini...
+                    </h3>
+                </div>
+
+                <!-- Answer Choices Grid -->
+                <div id="options-container" class="grid grid-cols-1 gap-3 pt-2">
+                    <!-- Dynamic choices rendered by JS -->
+                </div>
+
+                <!-- Explanation Box -->
+                <div id="explanation-box" class="hidden bg-indigo-950/60 border border-indigo-500/30 rounded-2xl p-4 text-xs text-indigo-200 space-y-1">
+                    <div class="font-bold text-indigo-300 flex items-center gap-1.5 text-sm">
+                        <i class="fa-solid fa-circle-info"></i> Pembahasan Soal:
+                    </div>
+                    <p id="explanation-text" class="leading-relaxed">Penjelasan pembahasan soal akan tampil di sini.</p>
+                </div>
+
+                <!-- Footer Action Buttons -->
+                <div class="flex items-center justify-between pt-4 border-t border-slate-700/80">
+                    <button onclick="app.prevQuestion()" id="prev-btn" class="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 disabled:opacity-30 disabled:pointer-events-none text-slate-200 text-xs font-semibold rounded-xl transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i> Sebelumnya
+                    </button>
+
+                    <div class="text-xs text-slate-400 font-semibold hidden sm:block">
+                        Soal <span id="current-q-num">1</span> dari 30
+                    </div>
+
+                    <button onclick="app.nextQuestion()" id="next-btn" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2">
+                        Selanjutnya <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= QUIZ RESULT / REPORT VIEW ================= -->
+        <section id="view-result" class="hidden space-y-6">
+            <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 sm:p-10 text-center space-y-6 relative overflow-hidden shadow-2xl">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none"></div>
+
+                <div class="w-20 h-20 bg-gradient-to-tr from-amber-500 to-yellow-400 rounded-3xl flex items-center justify-center text-4xl text-slate-900 mx-auto shadow-xl shadow-amber-500/20 pulse-anim">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+
+                <div class="space-y-1">
+                    <span class="text-xs font-extrabold uppercase text-indigo-400 tracking-widest">Laporan Hasil Kuis</span>
+                    <h3 class="text-3xl sm:text-4xl font-extrabold text-white" id="result-title">Selamat! Kuis Selesai</h3>
+                    <p class="text-xs text-slate-400" id="result-subtitle">Berikut adalah rekapitulasi nilai dan performa Anda</p>
+                </div>
+
+                <!-- Big Score Card -->
+                <div class="max-w-md mx-auto bg-slate-900 border border-slate-700/80 rounded-2xl p-6 space-y-4 shadow-inner">
+                    <div class="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-violet-300 to-emerald-400" id="result-score-num">
+                        0
+                    </div>
+                    <div class="text-xs font-semibold text-slate-400">SKOR AKHIR DARI TOTAL 100 POIN</div>
+
+                    <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-800 text-xs">
+                        <div class="bg-slate-800/60 p-2.5 rounded-xl">
+                            <span class="block text-emerald-400 font-bold text-base" id="result-correct-count">0</span>
+                            <span class="text-[10px] text-slate-400">Benar</span>
+                        </div>
+                        <div class="bg-slate-800/60 p-2.5 rounded-xl">
+                            <span class="block text-rose-400 font-bold text-base" id="result-wrong-count">0</span>
+                            <span class="text-[10px] text-slate-400">Salah</span>
+                        </div>
+                        <div class="bg-slate-800/60 p-2.5 rounded-xl">
+                            <span class="block text-amber-400 font-bold text-base" id="result-time-spent">00:00</span>
+                            <span class="text-[10px] text-slate-400">Durasi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spreadsheet Realtime Save Indicator -->
+                <div id="result-sheet-status-box" class="max-w-md mx-auto bg-slate-900/80 border border-emerald-500/40 rounded-xl p-3 flex items-center gap-3 text-left">
+                    <i class="fa-solid fa-spinner fa-spin text-emerald-400 text-lg" id="sheet-save-spinner"></i>
+                    <div class="text-xs">
+                        <div class="font-bold text-slate-200" id="sheet-save-title">Mengirim Hasil ke Google Spreadsheet...</div>
+                        <div class="text-[11px] text-slate-400" id="sheet-save-msg">Proses sinkronisasi data real-time berlangsung.</div>
+                    </div>
+                </div>
+
+                <!-- Buttons Action -->
+                <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+                    <button onclick="app.showReviewModal()" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check"></i> Review Pembahasan 30 Soal
+                    </button>
+                    <button onclick="app.exportToCSV()" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-emerald-600/30 flex items-center gap-2">
+                        <i class="fa-solid fa-file-csv"></i> Download Rekap CSV
+                    </button>
+                    <button onclick="app.startQuizSetup()" class="px-5 py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold rounded-xl text-xs transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Coba Lagi
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Review Answers Modal -->
+    <div id="review-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+            <div class="p-5 border-b border-slate-700 flex items-center justify-between bg-slate-800/90">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white text-base">Pembahasan Lengkap 30 Soal</h4>
+                        <p class="text-xs text-slate-400">Kuis IPS Kelas 7 - Tema 1</p>
+                    </div>
+                </div>
+                <button onclick="app.closeReviewModal()" class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-4 flex-grow" id="review-questions-list">
+                <!-- JS will inject list of all 30 questions with user answer vs key & detail explanation -->
+            </div>
+
+            <div class="p-4 border-t border-slate-700 bg-slate-800/90 text-right">
+                <button onclick="app.closeReviewModal()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs">
+                    Tutup Review
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast / Notification Modal Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            EduQuest IPS Kelas VII &copy; 2026 - Aplikasi Pembelajaran Interaktif IPS Kurikulum Merdeka
+        </div>
+    </footer>
+
+    <!-- JS SCRIPT LOGIC -->
+    <script>
+        const QUIZ_DATA = [
+            // 1 - 5: Mengenal Lokasi & Konektivitas Antarruang
+            {
+                category: "Mengenal Lokasi Tempat Tinggal",
+                question: "Letak suatu wilayah berdasarkan koordinat garis lintang dan garis bujur yang sifatnya tetap dinamakan...",
+                options: ["Lokasi Relatif", "Lokasi Absolut", "Lokasi Geografis", "Lokasi Strategis"],
+                answer: 1,
+                explanation: "Lokasi absolut merupakan letak yang tetap berdasarkan sistem koordinat (garis lintang & bujur), sifatnya tidak berubah meskipun kondisi sekitarnya berubah. Indonesia berada di 6°LU-11°LS dan 95°BT-141°BT."
+            },
+            {
+                category: "Mengenal Lokasi Tempat Tinggal",
+                question: "Sistem pembagian waktu dunia yang disepakati secara internasional didasarkan pada titik nol bujur yang berada di kota...",
+                options: ["Washington DC, Amerika Serikat", "Jakarta, Indonesia", "Greenwich, London, Inggris", "Tokyo, Jepang"],
+                answer: 2,
+                explanation: "Konferensi Internasional Meridian tahun 1884 di Washington DC memutuskan Greenwich (London) menjadi standar waktu internasional Greenwich Mean Time (GMT)."
+            },
+            {
+                category: "Mengenal Lokasi Tempat Tinggal",
+                question: "Di Kabupaten Penajam Paser Utara, Kaltim, harga tanah melonjak dari Rp100 juta menjadi Rp1 miliar per hektar setelah ditetapkan sebagai calon IKN. Perubahan nilai ekonomi tanah tersebut dipengaruhi oleh...",
+                options: ["Lokasi Absolut", "Lokasi Relatif", "Letak Astronomis", "Ketinggian Tempat"],
+                answer: 1,
+                explanation: "Lokasi relatif adalah letak yang berubah-ubah sesuai keadaan sekitarnya dan memengaruhi nilai ekonomis suatu objek (misal: kedekatan dengan fasilitas/IKN)."
+            },
+            {
+                category: "Konektivitas Antarruang",
+                question: "Menurut Edward Ullman, faktor utama terjadinya interaksi wilayah karena adanya wilayah-wilayah yang saling melengkapi dinamakan...",
+                options: ["Spatial transferability", "Intervening opportunity", "Regional complementarity", "Cultural integration"],
+                answer: 2,
+                explanation: "Regional complementarity (saling melengkapi) terjadi saat suatu wilayah surplus suatu sumber daya dan wilayah lain membutuhkan sumber daya tersebut."
+            },
+            {
+                category: "Konektivitas Antarruang",
+                question: "Kabupaten Brebes yang menghasilkan bawang merah berinteraksi dengan Kabupaten Wonosobo yang menghasilkan kentang untuk saling menukar hasil pertanian. Hal ini merupakan contoh interaksi...",
+                options: ["Pemuasan kebutuhan pangan antarwilayah", "Pengaruh iklim global", "Disosiatif antar daerah", "Persaingan usaha industri"],
+                answer: 0,
+                explanation: "Brebes (penghasil bawang) dan Wonosobo (penghasil kentang) saling berinteraksi dalam rangka memenuhi kebutuhan pangan yang tidak ada di wilayah masing-masing."
+            },
+
+            // 6 - 10: Perubahan Iklim & Unsur Cuaca
+            {
+                category: "Perubahan Iklim",
+                question: "Kondisi rata-rata udara pada saat tertentu di suatu wilayah yang relatif sempit dan dalam waktu yang singkat dinamakan...",
+                options: ["Iklim", "Musim", "Cuaca", "Suhu"],
+                answer: 2,
+                explanation: "Cuaca adalah kondisi rata-rata udara di tempat sempit dan waktu singkat. Sedangkan iklim adalah kondisi rata-rata cuaca tahunan pada wilayah yang luas."
+            },
+            {
+                category: "Perubahan Iklim",
+                question: "Unsur cuaca berupa pergerakan alami udara yang sejajar dengan permukaan bumi dan membantu proses penyerbukan tanaman adalah...",
+                options: ["Suhu udara", "Penyinaran matahari", "Kelembapan", "Angin"],
+                answer: 3,
+                explanation: "Angin membantu proses penyerbukan secara alami pada tanaman dan memengaruhi pengurangan kadar air."
+            },
+            {
+                category: "Perubahan Iklim",
+                question: "Indonesia beriklim tropis sehingga mengalami dua musim utama. Musim hujan di Indonesia umumnya terjadi pada rentang bulan...",
+                options: ["April - September", "Oktober - Maret", "Januari - Juni", "Mei - Agustus"],
+                answer: 1,
+                explanation: "Musim hujan di Indonesia umumnya berlangsung pada bulan Oktober hingga Maret akibat angin yang membawa uap air dari Samudra Pasifik/Laut Cina Selatan."
+            },
+            {
+                category: "Perubahan Iklim",
+                question: "Berikut ini yang merupakan dampak perubahan iklim di bidang sosial budaya adalah...",
+                options: ["Petani mengalami gagal panen sayur akibat banjir", "Nelayan kesulitan menentukan waktu melaut akibat cuaca tidak menentu", "Mesin-mesin pabrik menjadi cepat berkarat", "Harga BBM mengalami penyesuaian"],
+                answer: 1,
+                explanation: "Kenaikan permukaan laut dan cuaca yang tidak menentu berdampak pada kegiatan sosial nelayan yang kesulitan mencari ikan sehingga berpotensi kehilangan mata pencaharian."
+            },
+            {
+                category: "Perubahan Iklim",
+                question: "Peralihan musim (pancaroba) sering mengakibatkan gangguan kesehatan pada masyarakat seperti radang tenggorokan, demam, dan flu. Dampak iklim tersebut terjadi pada bidang...",
+                options: ["Kesehatan", "Industri", "Pertanian", "Perhubungan"],
+                answer: 0,
+                explanation: "Pancaroba berpengaruh langsung pada bidang kesehatan manusia akibat perubahan suhu terik, debu, dan daya tahan tubuh yang menurun."
+            },
+
+            // 11 - 15: Kondisi Geologis & Bencana Alam
+            {
+                category: "Potensi Bencana Alam",
+                question: "Secara geologis, wilayah Indonesia diapit dan berada pada pertemuan tiga lempeng tektonik utama dunia, yaitu...",
+                options: ["Eurasia, Indo-Australia, dan Pasifik", "Afrika, Amerika, dan Pasifik", "Antartika, Pasifik, dan Eurasia", "Indo-Australia, Nazca, dan Filipina"],
+                answer: 0,
+                explanation: "Indonesia berada di pertemuan 3 lempeng tektonik utama: Lempeng Eurasia (utara), Indo-Australia (selatan), dan Pasifik (timur)."
+            },
+            {
+                category: "Potensi Bencana Alam",
+                question: "Manfaat positif letak geologis Indonesia yang kaya akan gunung api aktif bagi kegiatan pertanian adalah...",
+                options: ["Tanah menjadi sangat subur karena kaya unsur hara abu vulkanik", "Mengurangi kebutuhan air untuk sawah", "Mencegah timbulnya hama tanaman", "Membuat udara menjadi dingin sepanjang tahun"],
+                answer: 0,
+                explanation: "Erupsi gunung berapi mengeluarkan abu vulkanik yang kaya unsur hara, menjadikan tanah di sekitarnya sangat subur untuk pertanian."
+            },
+            {
+                category: "Potensi Bencana Alam",
+                question: "Gelombang laut dahsyat yang mampu menjalar dengan kecepatan mencapai 900 km/jam akibat gempa dasar laut dinamakan...",
+                options: ["Lahar dingin", "Tsunami", "Siklon tropis", "Abrasi pantai"],
+                answer: 1,
+                explanation: "Tsunami merupakan gelombang laut yang disebabkan gempa bumi dasar laut, pergeseran lempeng, atau letusan gunung berapi dasar laut."
+            },
+            {
+                category: "Potensi Bencana Alam",
+                question: "Indonesia dilalui oleh dua jalur pegunungan lipatan muda dunia, yaitu...",
+                options: ["Sirkum Pasifik dan Sirkum Mediterania", "Sirkum Atlantik dan Sirkum Hindia", "Pegunungan Himalaya dan Andes", "Sirkum Kutub Utara dan Selatan"],
+                answer: 0,
+                explanation: "Secara geologis Indonesia dilalui dua jalur pegunungan api utama dunia yaitu Sirkum Pasifik dan Sirkum Mediterania."
+            },
+            {
+                category: "Potensi Bencana Alam",
+                question: "Bahan mineral hasil proses geologi metamorf yang sering dimanfaatkan sebagai bahan baku pembuatan kosmetik bedak adalah...",
+                options: ["Minyak bumi", "Gas alam", "Mineral Talk", "Batu bara"],
+                answer: 2,
+                explanation: "Batuan metamorf mengandung mineral talk yang diproses untuk bahan pembuatan bedak kosmetik."
+            },
+
+            // 16 - 20: Kegiatan Ekonomi
+            {
+                category: "Kegiatan Ekonomi",
+                question: "Kegiatan menambah nilai guna atau manfaat suatu barang atau menciptakan barang baru demi memenuhi kebutuhan manusia dinamakan...",
+                options: ["Konsumsi", "Produksi", "Distribusi", "Investasi"],
+                answer: 1,
+                explanation: "Produksi adalah kegiatan menciptakan barang baru atau menambah nilai guna suatu barang/jasa."
+            },
+            {
+                category: "Kegiatan Ekonomi",
+                question: "Di bawah ini yang termasuk dalam 4 faktor produksi utama adalah...",
+                options: ["Alam, Tenaga Kerja, Modal, dan Keahlian (Entrepreneurship)", "Uang, Pasar, Pabrik, dan Iklan", "Tanah, Kendaraan, Bensin, dan Pembeli", "Bahan mentah, Diskon, Toko, dan Konsumen"],
+                answer: 0,
+                explanation: "Faktor produksi meliputi: 1) Alam, 2) Tenaga Kerja, 3) Modal, dan 4) Keahlian (Entrepreneurship) untuk mengelola semuanya."
+            },
+            {
+                category: "Kegiatan Ekonomi",
+                question: "Produsen smartphone resmi yang menjual HP buatannya secara langsung melalui toko resmi milik perusahaan sendiri merupakan contoh bentuk distribusi...",
+                options: ["Distribusi Langsung", "Distribusi Semilangsung", "Distribusi Tidak Langsung", "Distribusi Bebas"],
+                answer: 1,
+                explanation: "Distribusi semilangsung terjadi jika produsen menyalurkan barangnya ke konsumen melalui perantara yang merupakan bagian/milik dari produsen itu sendiri."
+            },
+            {
+                category: "Kegiatan Ekonomi",
+                question: "Kegiatan mengurangi atau menghabiskan nilai guna suatu barang dan jasa untuk memenuhi kebutuhan hidup dinamakan...",
+                options: ["Distribusi", "Produksi", "Konsumsi", "Rekreasi"],
+                answer: 2,
+                explanation: "Konsumsi adalah kegiatan menghabiskan atau mengurangi manfaat barang/jasa untuk memenuhi kebutuhan."
+            },
+            {
+                category: "Kegiatan Ekonomi",
+                question: "Faktor internal yang memengaruhi tingkat konsumsi seseorang berasal dari dalam diri, contohnya...",
+                options: ["Harga barang dan selera", "Motivasi, sikap, dan selera", "Pekerjaan dan kebudayaan", "Jumlah anggota keluarga dan lingkungan"],
+                answer: 1,
+                explanation: "Faktor internal konsumsi meliputi motivasi, sikap, dan selera pribadi seseorang."
+            },
+
+            // 21 - 25: Interaksi Sosial
+            {
+                category: "Interaksi Sosial",
+                question: "Dua syarat utama agar terjadinya interaksi sosial dalam masyarakat adalah...",
+                options: ["Uang dan barang", "Kontak sosial dan komunikasi", "Jabatan dan status sosial", "Persaingan dan kerjasama"],
+                answer: 1,
+                explanation: "Interaksi sosial baru bisa terjadi apabila memenuhi dua syarat: Adanya Kontak Sosial dan Komunikasi."
+            },
+            {
+                category: "Interaksi Sosial",
+                question: "Proses komunikasi yang menggunakan simbol-simbol seperti gestur tubuh, ekspresi wajah, dan bahasa isyarat dinamakan komunikasi...",
+                options: ["Verbal", "Nonverbal", "Langsung", "Digital"],
+                answer: 1,
+                explanation: "Komunikasi nonverbal menggunakan gestur, simbol, bahasa isyarat, dan ekspresi wajah tanpa kata-kata lisan/tulisan."
+            },
+            {
+                category: "Interaksi Sosial",
+                question: "Bentuk interaksi sosial asosiatif di mana dua kebudayaan berbeda berpadu menjadi kebudayaan baru tanpa menghilangkan kebudayaan asli dinamakan...",
+                options: ["Asimilasi", "Akulturasi", "Akomodasi", "Kontravensi"],
+                answer: 1,
+                explanation: "Akulturasi adalah perpaduan dua budaya berbeda menjadi satu tanpa menghilangkan ciri khas budaya aslinya."
+            },
+            {
+                category: "Interaksi Sosial",
+                question: "Ketua RT yang menengahi dan mendamaikan perselisihan antara warga yang hendak membuka peternakan dengan warga sekitar merupakan contoh bentuk interaksi...",
+                options: ["Akomodasi", "Persaingan", "Kontravensi", "Konflik"],
+                answer: 0,
+                explanation: "Akomodasi adalah bentuk interaksi sosial asosiatif untuk meredakan atau menyelesaikan pertentangan yang terjadi."
+            },
+            {
+                category: "Interaksi Sosial",
+                question: "Bentuk interaksi disosiatif berupa rasa tidak suka atau ketidakpercayaan yang disembunyikan di dalam hati dinamakan...",
+                options: ["Persaingan", "Kontravensi", "Pertentangan", "Gotong royong"],
+                answer: 1,
+                explanation: "Kontravensi ditandai dengan gejala ketidaksukaan atau ketidakpercayaan yang disembunyikan di dalam hati."
+            },
+
+            // 26 - 30: Konsep Dasar Ilmu Sejarah
+            {
+                category: "Konsep Dasar Ilmu Sejarah",
+                question: "Secara etimologi, kata 'Sejarah' berasal dari bahasa Arab 'Syajaratun' yang memiliki arti...",
+                options: ["Batu tulis", "Pohon kayu", "Aliran sungai", "Masa lalu"],
+                answer: 1,
+                explanation: "Syajaratun bermakna 'pohon kayu', mengibaratkan perkembangan dan silsilah kejadian dalam sebuah kesinambungan."
+            },
+            {
+                category: "Konsep Dasar Ilmu Sejarah",
+                question: "Peristiwa sejarah dikatakan memiliki sifat 'Unik' karena...",
+                options: ["Selalu dikenang sepanjang masa", "Hanya terjadi satu kali dan tidak akan terulang sama persis", "Memiliki pengaruh sangat besar bagi dunia", "Dapat diubah sesuai keinginan sejarawan"],
+                answer: 1,
+                explanation: "Ciri unik peristiwa sejarah berarti peristiwa tersebut hanya terjadi satu kali (einmalig) dan tidak pernah terulang persis sama."
+            },
+            {
+                category: "Konsep Dasar Ilmu Sejarah",
+                question: "Tiga unsur utama yang tidak dapat dipisahkan dalam peristiwa sejarah adalah...",
+                options: ["Ruang, Waktu, dan Manusia", "Batu, Prasasti, dan Candi", "Naskah, Mitos, dan Dongeng", "Sebab, Akibat, dan Tokoh"],
+                answer: 0,
+                explanation: "Tiga unsur pokok sejarah adalah Manusia (pelaku), Ruang (tempat), dan Waktu (kapan terjadinya)."
+            },
+            {
+                category: "Konsep Dasar Ilmu Sejarah",
+                question: "Prasasti, silsilah keluarga tertulis, babad, piagam, dan buku harian termasuk ke dalam jenis sumber sejarah...",
+                options: ["Sumber Benda (Artefak)", "Sumber Tertulis", "Sumber Lisan", "Sumber Rekaman"],
+                answer: 1,
+                explanation: "Sumber tertulis berupa peninggalan tulisan seperti prasasti, dokumen, silsilah, piagam, dan buku harian."
+            },
+            {
+                category: "Konsep Dasar Ilmu Sejarah",
+                question: "Cerita rakyat yang dianggap benar-benar terjadi dan dianggap suci oleh masyarakat pemilik cerita dinamakan...",
+                options: ["Dongeng", "Legenda", "Mitos", "Komik"],
+                answer: 2,
+                explanation: "Mitos adalah cerita rakyat yang dianggap benar-benar terjadi dan bersifat suci/sakral oleh masyarakat pemiliknya."
+            }
+        ];
+
+        class AudioController {
+            constructor() {
+                this.enabled = true;
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playCorrect() {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
+                osc.frequency.exponentialRampToValueAtTime(659.25, this.ctx.currentTime + 0.15); // E5
+                osc.frequency.exponentialRampToValueAtTime(783.99, this.ctx.currentTime + 0.3); // G5
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.4);
+            }
+
+            playWrong() {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(130, this.ctx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.35);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.35);
+            }
+        }
+
+        const audio = new AudioController();
+
+        class QuizApp {
+            constructor() {
+                this.questions = QUIZ_DATA;
+                this.currentIndex = 0;
+                this.userAnswers = new Array(30).fill(null);
+                this.player = {
+                    name: "Siswa",
+                    class: "7-A",
+                    no: "01",
+                    mode: "exam"
+                };
+                this.timerSeconds = 0;
+                this.timerInterval = null;
+                this.sheetUrl = localStorage.getItem('eduquest_sheet_url') || '';
+                this.isSheetSaved = false;
+            }
+
+            init() {
+                if (this.sheetUrl) {
+                    document.getElementById('sheet-url-input').value = this.sheetUrl;
+                    document.getElementById('sheet-status-text').innerText = "Tersambung ke Google Spreadsheet: " + this.sheetUrl.substring(0, 35) + "...";
+                }
+            }
+
+            showHome() {
+                this.hideAllViews();
+                document.getElementById('view-home').classList.remove('hidden');
+            }
+
+            showInstructions() {
+                this.hideAllViews();
+                document.getElementById('view-instructions').classList.remove('hidden');
+            }
+
+            showSheetSettings() {
+                this.hideAllViews();
+                document.getElementById('view-sheet-settings').classList.remove('hidden');
+            }
+
+            showSummaryMaterial() {
+                this.hideAllViews();
+                document.getElementById('view-material').classList.remove('hidden');
+            }
+
+            startQuizSetup() {
+                this.hideAllViews();
+                document.getElementById('view-setup').classList.remove('hidden');
+            }
+
+            hideAllViews() {
+                ['view-home', 'view-setup', 'view-instructions', 'view-sheet-settings', 'view-material', 'view-quiz', 'view-result'].forEach(id => {
+                    document.getElementById(id).classList.add('hidden');
+                });
+            }
+
+            toggleSound() {
+                audio.enabled = !audio.enabled;
+                const icon = document.getElementById('sound-icon');
+                if (audio.enabled) {
+                    icon.className = "fa-solid fa-volume-high";
+                    this.showToast("Suara Diaktifkan", "success");
+                } else {
+                    icon.className = "fa-solid fa-volume-xmark";
+                    this.showToast("Suara Dimatikan", "info");
+                }
+            }
+
+            toggleMobileMenu() {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.toggle('hidden');
+            }
+
+            saveSheetUrl() {
+                const url = document.getElementById('sheet-url-input').value.trim();
+                this.sheetUrl = url;
+                localStorage.setItem('eduquest_sheet_url', url);
+                if (url) {
+                    document.getElementById('sheet-status-text').innerText = "Tersambung ke Google Spreadsheet URL.";
+                    this.showToast("URL Spreadsheet Berhasil Disimpan!", "success");
+                } else {
+                    document.getElementById('sheet-status-text').innerText = "Menggunakan Mode Lokal CSV.";
+                    this.showToast("URL Dikosongkan. Menggunakan Penyimpanan Lokal.", "info");
+                }
+            }
+
+            testSheetConnection() {
+                const url = document.getElementById('sheet-url-input').value.trim();
+                if (!url) {
+                    this.showToast("Isi URL Apps Script terlebih dahulu!", "warning");
+                    return;
+                }
+                this.showToast("Menguji koneksi ke Google Spreadsheet...", "info");
+                fetch(url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ test: true, timestamp: new Date().toLocaleString() })
+                }).then(() => {
+                    this.showToast("Koneksi berhasil terkirim!", "success");
+                }).catch(err => {
+                    this.showToast("Gagal terhubung. Cek izin Apps Script.", "error");
+                });
+            }
+
+            confirmSetup(e) {
+                e.preventDefault();
+                this.player.name = document.getElementById('player-name').value.trim();
+                this.player.class = document.getElementById('player-class').value;
+                this.player.no = document.getElementById('player-no').value.trim();
+                
+                const selectedMode = document.querySelector('input[name="game-mode"]:checked').value;
+                this.player.mode = selectedMode;
+
+                this.currentIndex = 0;
+                this.userAnswers = new Array(30).fill(null);
+                this.timerSeconds = 0;
+
+                document.getElementById('player-display-name').innerText = this.player.name;
+                document.getElementById('player-display-class').innerText = "Kelas " + this.player.class + " (" + this.player.no + ")";
+
+                this.startTimer();
+                this.renderQuestion();
+
+                this.hideAllViews();
+                document.getElementById('view-quiz').classList.remove('hidden');
+            }
+
+            startTimer() {
+                if (this.timerInterval) clearInterval(this.timerInterval);
+                this.timerInterval = setInterval(() => {
+                    this.timerSeconds++;
+                    const mins = String(Math.floor(this.timerSeconds / 60)).padStart(2, '0');
+                    const secs = String(this.timerSeconds % 60).padStart(2, '0');
+                    document.getElementById('quiz-timer').innerText = `${mins}:${secs}`;
+                }, 1000);
+            }
+
+            stopTimer() {
+                if (this.timerInterval) clearInterval(this.timerInterval);
+            }
+
+            renderQuestion() {
+                const q = this.questions[this.currentIndex];
+                const total = this.questions.length;
+
+                document.getElementById('quiz-badge').innerText = `${this.currentIndex + 1}/${total}`;
+                document.getElementById('quiz-category-label').innerText = q.category;
+                document.getElementById('question-number-title').innerText = `SOAL NOMOR ${this.currentIndex + 1}`;
+                document.getElementById('question-text').innerText = q.question;
+                document.getElementById('current-q-num').innerText = this.currentIndex + 1;
+
+                // Progress Bar Update
+                const progressPercent = ((this.currentIndex + 1) / total) * 100;
+                document.getElementById('quiz-progress-bar').style.width = `${progressPercent}%`;
+
+                // Calculate Live Score
+                const correctCount = this.userAnswers.reduce((acc, ans, idx) => {
+                    return ans === this.questions[idx].answer ? acc + 1 : acc;
+                }, 0);
+                const currentScore = Math.round((correctCount / total) * 100);
+                document.getElementById('quiz-score').innerText = `${currentScore} Poin`;
+
+                // Render Options
+                const optionsContainer = document.getElementById('options-container');
+                optionsContainer.innerHTML = '';
+
+                const userAns = this.userAnswers[this.currentIndex];
+
+                q.options.forEach((optText, optIdx) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    
+                    let bgClasses = "bg-slate-900/80 border-slate-700 text-slate-200 hover:border-indigo-500/80 hover:bg-slate-800";
+                    let iconHtml = `<span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center text-xs font-bold mr-3">${String.fromCharCode(65 + optIdx)}</span>`;
+
+                    if (userAns !== null) {
+                        if (optIdx === userAns) {
+                            if (userAns === q.answer) {
+                                bgClasses = "bg-emerald-950/80 border-emerald-500 text-emerald-200 font-bold";
+                                iconHtml = `<span class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-xs font-bold mr-3"><i class="fa-solid fa-check"></i></span>`;
+                            } else {
+                                bgClasses = "bg-rose-950/80 border-rose-500 text-rose-200 font-bold";
+                                iconHtml = `<span class="w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold mr-3"><i class="fa-solid fa-xmark"></i></span>`;
+                            }
+                        } else if (optIdx === q.answer && (this.player.mode === 'practice' || userAns !== null)) {
+                            bgClasses = "bg-emerald-950/40 border-emerald-500/50 text-emerald-300 font-semibold";
+                            iconHtml = `<span class="w-6 h-6 rounded-full bg-emerald-500/30 text-emerald-300 flex items-center justify-center text-xs font-bold mr-3"><i class="fa-solid fa-check"></i></span>`;
+                        }
+                    }
+
+                    btn.className = `w-full text-left p-4 rounded-2xl border ${bgClasses} transition-all flex items-center text-xs sm:text-sm font-medium leading-relaxed`;
+                    btn.innerHTML = `${iconHtml} <span class="flex-grow">${optText}</span>`;
+                    
+                    btn.onclick = () => this.selectOption(optIdx);
+                    optionsContainer.appendChild(btn);
+                });
+
+                // Explanation Box Handling
+                const explanationBox = document.getElementById('explanation-box');
+                if (userAns !== null) {
+                    document.getElementById('explanation-text').innerText = q.explanation;
+                    explanationBox.classList.remove('hidden');
+                } else {
+                    explanationBox.classList.add('hidden');
+                }
+
+                // Prev / Next button state
+                document.getElementById('prev-btn').disabled = (this.currentIndex === 0);
+                const nextBtn = document.getElementById('next-btn');
+                if (this.currentIndex === total - 1) {
+                    nextBtn.innerHTML = `Selesai Kuis <i class="fa-solid fa-flag-checkered"></i>`;
+                    nextBtn.className = "px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-emerald-600/30 flex items-center gap-2";
+                } else {
+                    nextBtn.innerHTML = `Selanjutnya <i class="fa-solid fa-arrow-right"></i>`;
+                    nextBtn.className = "px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2";
+                }
+            }
+
+            selectOption(optIdx) {
+                if (this.userAnswers[this.currentIndex] !== null) return; // Locked once answered
+
+                this.userAnswers[this.currentIndex] = optIdx;
+                const isCorrect = (optIdx === this.questions[this.currentIndex].answer);
+
+                if (isCorrect) {
+                    audio.playCorrect();
+                } else {
+                    audio.playWrong();
+                }
+
+                this.renderQuestion();
+            }
+
+            nextQuestion() {
+                if (this.currentIndex < this.questions.length - 1) {
+                    this.currentIndex++;
+                    this.renderQuestion();
+                } else {
+                    this.finishQuiz();
+                }
+            }
+
+            prevQuestion() {
+                if (this.currentIndex > 0) {
+                    this.currentIndex--;
+                    this.renderQuestion();
+                }
+            }
+
+            finishQuiz() {
+                this.stopTimer();
+
+                const correctCount = this.userAnswers.reduce((acc, ans, idx) => {
+                    return ans === this.questions[idx].answer ? acc + 1 : acc;
+                }, 0);
+                const wrongCount = 30 - correctCount;
+                const score = Math.round((correctCount / 30) * 100);
+
+                const mins = String(Math.floor(this.timerSeconds / 60)).padStart(2, '0');
+                const secs = String(this.timerSeconds % 60).padStart(2, '0');
+                const timeStr = `${mins}:${secs}`;
+
+                document.getElementById('result-score-num').innerText = score;
+                document.getElementById('result-correct-count').innerText = correctCount;
+                document.getElementById('result-wrong-count').innerText = wrongCount;
+                document.getElementById('result-time-spent').innerText = timeStr;
+
+                if (score >= 80) {
+                    document.getElementById('result-title').innerText = "Luar Biasa! Prestasi Gemilang 🎉";
+                    document.getElementById('result-subtitle').innerText = "Pemahaman Anda tentang IPS Tema 01 sangat mendalam!";
+                    try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); } catch(e){}
+                } else if (score >= 60) {
+                    document.getElementById('result-title').innerText = "Bagus! Terus Tingkatkan 👍";
+                    document.getElementById('result-subtitle').innerText = "Hasil cukup baik, pelajari kembali soal yang belum tepat.";
+                } else {
+                    document.getElementById('result-title').innerText = "Tetap Semangat Belajar! 💪";
+                    document.getElementById('result-subtitle').innerText = "Jangan berkecil hati, pelajari rangkuman materi dan coba kembali.";
+                }
+
+                this.hideAllViews();
+                document.getElementById('view-result').classList.remove('hidden');
+
+                // Send data to Spreadsheet Real-Time
+                this.sendDataToSpreadsheet({
+                    timestamp: new Date().toLocaleString("id-ID"),
+                    name: this.player.name,
+                    class: this.player.class,
+                    no: this.player.no,
+                    score: score,
+                    correct: correctCount,
+                    wrong: wrongCount,
+                    mode: this.player.mode === 'exam' ? 'Ujian' : 'Latihan',
+                    timeSpent: timeStr
+                });
+            }
+
+            sendDataToSpreadsheet(payload) {
+                const spinner = document.getElementById('sheet-save-spinner');
+                const title = document.getElementById('sheet-save-title');
+                const msg = document.getElementById('sheet-save-msg');
+
+                // Always save locally in history
+                let history = JSON.parse(localStorage.getItem('eduquest_results') || '[]');
+                history.push(payload);
+                localStorage.setItem('eduquest_results', JSON.stringify(history));
+
+                if (!this.sheetUrl) {
+                    spinner.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+                    title.innerText = "Tersimpan di Memori Lokal Browser";
+                    msg.innerText = "Dapat diunduh kapan saja melalui tombol 'Download Rekap CSV'.";
+                    return;
+                }
+
+                spinner.className = "fa-solid fa-spinner fa-spin text-emerald-400 text-lg";
+                title.innerText = "Mengirim Data ke Google Spreadsheet...";
+                msg.innerText = "Menghubungkan ke Endpoint Web App...";
+
+                fetch(this.sheetUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).then(() => {
+                    spinner.className = "fa-solid fa-cloud-arrow-up text-emerald-400 text-lg";
+                    title.innerText = "Berhasil Tersimpan di Spreadsheet Real-Time!";
+                    msg.innerText = "Data hasil kuis telah masuk secara otomatis ke Google Sheet Guru.";
+                    this.showToast("Data nilai berhasil disinkronkan ke Spreadsheet!", "success");
+                }).catch(err => {
+                    spinner.className = "fa-solid fa-triangle-exclamation text-amber-400 text-lg";
+                    title.innerText = "Gagal Kirim ke Spreadsheet (Tersimpan Lokal)";
+                    msg.innerText = "Periksa koneksi internet atau ketersediaan URL Web App.";
+                });
+            }
+
+            showReviewModal() {
+                const container = document.getElementById('review-questions-list');
+                container.innerHTML = '';
+
+                this.questions.forEach((q, idx) => {
+                    const userAns = this.userAnswers[idx];
+                    const isCorrect = (userAns === q.answer);
+
+                    const div = document.createElement('div');
+                    div.className = `p-4 rounded-2xl border ${isCorrect ? 'bg-slate-900/60 border-emerald-500/40' : 'bg-slate-900/60 border-rose-500/40'} space-y-2 text-xs`;
+
+                    let statusBadge = isCorrect 
+                        ? `<span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded font-bold"><i class="fa-solid fa-check mr-1"></i> BENAR</span>`
+                        : `<span class="px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded font-bold"><i class="fa-solid fa-xmark mr-1"></i> SALAH / TIDAK DIJAWAB</span>`;
+
+                    let userChoiceText = userAns !== null ? `${String.fromCharCode(65 + userAns)}. ${q.options[userAns]}` : "Tidak dijawab";
+                    let keyText = `${String.fromCharCode(65 + q.answer)}. ${q.options[q.answer]}`;
+
+                    div.innerHTML = `
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <span class="font-bold text-slate-300">Soal #${idx + 1} - ${q.category}</span>
+                            ${statusBadge}
+                        </div>
+                        <p class="font-semibold text-white text-xs leading-relaxed">${q.question}</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px]">
+                            <div class="p-2 rounded-lg bg-slate-950 border border-slate-800">
+                                <span class="text-slate-400 block">Jawaban Anda:</span>
+                                <span class="${isCorrect ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}">${userChoiceText}</span>
+                            </div>
+                            <div class="p-2 rounded-lg bg-slate-950 border border-slate-800">
+                                <span class="text-slate-400 block">Kunci Jawaban:</span>
+                                <span class="text-emerald-400 font-bold">${keyText}</span>
+                            </div>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-indigo-950/40 border border-indigo-500/20 text-indigo-200 text-[11px]">
+                            <strong class="text-indigo-300">Pembahasan:</strong> ${q.explanation}
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+
+                document.getElementById('review-modal').classList.remove('hidden');
+            }
+
+            closeReviewModal() {
+                document.getElementById('review-modal').classList.add('hidden');
+            }
+
+            exportToCSV() {
+                let history = JSON.parse(localStorage.getItem('eduquest_results') || '[]');
+                if (history.length === 0) {
+                    this.showToast("Belum ada data nilai tersimpan.", "warning");
+                    return;
+                }
+
+                let csvContent = "data:text/csv;charset=utf-8,";
+                csvContent += "Waktu,Nama Peserta,Kelas,No Absen,Skor Total,Benar,Salah,Mode,Durasi\n";
+
+                history.forEach(row => {
+                    csvContent += `"${row.timestamp}","${row.name}","${row.class}","${row.no}","${row.score}","${row.correct}","${row.wrong}","${row.mode}","${row.timeSpent}"\n`;
+                });
+
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `Rekap_Nilai_IPS7_Tema1_${new Date().toISOString().slice(0,10)}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                this.showToast("File CSV Berhasil Diunduh!", "success");
+            }
+
+            showToast(message, type = "info") {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                
+                let bg = "bg-slate-800 text-slate-100 border-slate-700";
+                let icon = "fa-circle-info text-blue-400";
+
+                if (type === "success") {
+                    bg = "bg-emerald-900/90 text-emerald-100 border-emerald-500/50";
+                    icon = "fa-circle-check text-emerald-400";
+                } else if (type === "warning") {
+                    bg = "bg-amber-900/90 text-amber-100 border-amber-500/50";
+                    icon = "fa-triangle-exclamation text-amber-400";
+                } else if (type === "error") {
+                    bg = "bg-rose-900/90 text-rose-100 border-rose-500/50";
+                    icon = "fa-circle-xmark text-rose-400";
+                }
+
+                toast.className = `px-4 py-3 rounded-2xl border ${bg} text-xs font-semibold shadow-xl flex items-center gap-2 transform transition-all duration-300 pointer-events-auto max-w-sm`;
+                toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i> <span>${message}</span>`;
+
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+        }
+
+        // Initialize App Instance
+        let app;
+        window.onload = function() {
+            app = new QuizApp();
+            app.init();
+        };
+    </script>
+</body>
+</html>
