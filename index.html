@@ -648,6 +648,12 @@ function doPost(e) {
 
     <!-- JS SCRIPT LOGIC -->
     <script>
+        // =========================================================================
+        // LOKASI UTAMA: MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI BAWAH INI:
+        // Ganti teks di dalam tanda kutip dengan Web App URL dari Google Sheets Anda.
+        // =========================================================================
+        const DEFAULT_SHEET_URL = "https://script.google.com/macros/s/AKfycbznWoWQXxL1Hv3iPSVKZTjvPC5mNxdJuFA7EVIPUQKKTSEfmDpehEjkRU5lgZOHocqt/exec";
+
         const QUIZ_DATA = [
             // 1 - 5: Mengenal Lokasi & Konektivitas Antarruang
             {
@@ -933,20 +939,27 @@ function doPost(e) {
                 };
                 this.timerSeconds = 0;
                 this.timerInterval = null;
-                this.sheetUrl = localStorage.getItem('eduquest_sheet_url') || '';
-                this.isSheetSaved = false;
+                this.sheetUrl = localStorage.getItem('eduquest_sheet_url') || DEFAULT_SHEET_URL;
+                
+                this.init();
             }
 
             init() {
-                if (this.sheetUrl) {
-                    document.getElementById('sheet-url-input').value = this.sheetUrl;
-                    document.getElementById('sheet-status-text').innerText = "Tersambung ke Google Spreadsheet: " + this.sheetUrl.substring(0, 35) + "...";
-                }
+                this.updateSheetStatusHome();
+            }
+
+            hideAllViews() {
+                const views = ['view-home', 'view-setup', 'view-instructions', 'view-sheet-settings', 'view-material', 'view-quiz', 'view-result'];
+                views.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.add('hidden');
+                });
             }
 
             showHome() {
                 this.hideAllViews();
                 document.getElementById('view-home').classList.remove('hidden');
+                this.updateSheetStatusHome();
             }
 
             showInstructions() {
@@ -957,6 +970,7 @@ function doPost(e) {
             showSheetSettings() {
                 this.hideAllViews();
                 document.getElementById('view-sheet-settings').classList.remove('hidden');
+                document.getElementById('sheet-url-input').value = this.sheetUrl;
             }
 
             showSummaryMaterial() {
@@ -969,182 +983,126 @@ function doPost(e) {
                 document.getElementById('view-setup').classList.remove('hidden');
             }
 
-            hideAllViews() {
-                ['view-home', 'view-setup', 'view-instructions', 'view-sheet-settings', 'view-material', 'view-quiz', 'view-result'].forEach(id => {
-                    document.getElementById(id).classList.add('hidden');
-                });
+            toggleMobileMenu() {
+                const menu = document.getElementById('mobile-menu');
+                if (menu) menu.classList.toggle('hidden');
             }
 
             toggleSound() {
                 audio.enabled = !audio.enabled;
                 const icon = document.getElementById('sound-icon');
-                if (audio.enabled) {
-                    icon.className = "fa-solid fa-volume-high";
-                    this.showToast("Suara Diaktifkan", "success");
-                } else {
-                    icon.className = "fa-solid fa-volume-xmark";
-                    this.showToast("Suara Dimatikan", "info");
+                if (icon) {
+                    icon.className = audio.enabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
                 }
-            }
-
-            toggleMobileMenu() {
-                const menu = document.getElementById('mobile-menu');
-                menu.classList.toggle('hidden');
-            }
-
-            saveSheetUrl() {
-                const url = document.getElementById('sheet-url-input').value.trim();
-                this.sheetUrl = url;
-                localStorage.setItem('eduquest_sheet_url', url);
-                if (url) {
-                    document.getElementById('sheet-status-text').innerText = "Tersambung ke Google Spreadsheet URL.";
-                    this.showToast("URL Spreadsheet Berhasil Disimpan!", "success");
-                } else {
-                    document.getElementById('sheet-status-text').innerText = "Menggunakan Mode Lokal CSV.";
-                    this.showToast("URL Dikosongkan. Menggunakan Penyimpanan Lokal.", "info");
-                }
-            }
-
-            testSheetConnection() {
-                const url = document.getElementById('sheet-url-input').value.trim();
-                if (!url) {
-                    this.showToast("Isi URL Apps Script terlebih dahulu!", "warning");
-                    return;
-                }
-                this.showToast("Menguji koneksi ke Google Spreadsheet...", "info");
-                fetch(url, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ test: true, timestamp: new Date().toLocaleString() })
-                }).then(() => {
-                    this.showToast("Koneksi berhasil terkirim!", "success");
-                }).catch(err => {
-                    this.showToast("Gagal terhubung. Cek izin Apps Script.", "error");
-                });
+                this.showToast(audio.enabled ? "Suara Diaktifkan" : "Suara Dimatikan", "info");
             }
 
             confirmSetup(e) {
                 e.preventDefault();
-                this.player.name = document.getElementById('player-name').value.trim();
+                this.player.name = document.getElementById('player-name').value.trim() || "Siswa";
                 this.player.class = document.getElementById('player-class').value;
-                this.player.no = document.getElementById('player-no').value.trim();
+                this.player.no = document.getElementById('player-no').value.trim() || "01";
                 
-                const selectedMode = document.querySelector('input[name="game-mode"]:checked').value;
-                this.player.mode = selectedMode;
+                const modeRadio = document.querySelector('input[name="game-mode"]:checked');
+                this.player.mode = modeRadio ? modeRadio.value : "exam";
 
+                this.startQuiz();
+            }
+
+            startQuiz() {
                 this.currentIndex = 0;
                 this.userAnswers = new Array(30).fill(null);
                 this.timerSeconds = 0;
-
-                document.getElementById('player-display-name').innerText = this.player.name;
-                document.getElementById('player-display-class').innerText = "Kelas " + this.player.class + " (" + this.player.no + ")";
-
-                this.startTimer();
-                this.renderQuestion();
-
-                this.hideAllViews();
-                document.getElementById('view-quiz').classList.remove('hidden');
-            }
-
-            startTimer() {
+                
                 if (this.timerInterval) clearInterval(this.timerInterval);
                 this.timerInterval = setInterval(() => {
                     this.timerSeconds++;
-                    const mins = String(Math.floor(this.timerSeconds / 60)).padStart(2, '0');
-                    const secs = String(this.timerSeconds % 60).padStart(2, '0');
-                    document.getElementById('quiz-timer').innerText = `${mins}:${secs}`;
+                    this.updateTimerDisplay();
                 }, 1000);
+
+                document.getElementById('player-display-name').textContent = this.player.name;
+                document.getElementById('player-display-class').textContent = this.player.class;
+
+                this.hideAllViews();
+                document.getElementById('view-quiz').classList.remove('hidden');
+                this.renderQuestion();
             }
 
-            stopTimer() {
-                if (this.timerInterval) clearInterval(this.timerInterval);
+            updateTimerDisplay() {
+                const mins = Math.floor(this.timerSeconds / 60).toString().padStart(2, '0');
+                const secs = (this.timerSeconds % 60).toString().padStart(2, '0');
+                const timerEl = document.getElementById('quiz-timer');
+                if (timerEl) timerEl.textContent = `${mins}:${secs}`;
             }
 
             renderQuestion() {
                 const q = this.questions[this.currentIndex];
-                const total = this.questions.length;
+                
+                document.getElementById('quiz-badge').textContent = `${this.currentIndex + 1}/30`;
+                document.getElementById('quiz-category-label').textContent = q.category;
+                document.getElementById('quiz-progress-bar').style.width = `${((this.currentIndex + 1) / 30) * 100}%`;
+                document.getElementById('question-number-title').textContent = `Soal No. ${this.currentIndex + 1}`;
+                document.getElementById('question-text').textContent = q.question;
+                document.getElementById('current-q-num').textContent = this.currentIndex + 1;
 
-                document.getElementById('quiz-badge').innerText = `${this.currentIndex + 1}/${total}`;
-                document.getElementById('quiz-category-label').innerText = q.category;
-                document.getElementById('question-number-title').innerText = `SOAL NOMOR ${this.currentIndex + 1}`;
-                document.getElementById('question-text').innerText = q.question;
-                document.getElementById('current-q-num').innerText = this.currentIndex + 1;
+                document.getElementById('prev-btn').disabled = this.currentIndex === 0;
+                
+                const nextBtn = document.getElementById('next-btn');
+                if (this.currentIndex === 29) {
+                    nextBtn.innerHTML = `Selesai & Kirim <i class="fa-solid fa-paper-plane ml-1"></i>`;
+                } else {
+                    nextBtn.innerHTML = `Selanjutnya <i class="fa-solid fa-arrow-right ml-1"></i>`;
+                }
 
-                // Progress Bar Update
-                const progressPercent = ((this.currentIndex + 1) / total) * 100;
-                document.getElementById('quiz-progress-bar').style.width = `${progressPercent}%`;
-
-                // Calculate Live Score
-                const correctCount = this.userAnswers.reduce((acc, ans, idx) => {
-                    return ans === this.questions[idx].answer ? acc + 1 : acc;
-                }, 0);
-                const currentScore = Math.round((correctCount / total) * 100);
-                document.getElementById('quiz-score').innerText = `${currentScore} Poin`;
-
-                // Render Options
                 const optionsContainer = document.getElementById('options-container');
                 optionsContainer.innerHTML = '';
 
-                const userAns = this.userAnswers[this.currentIndex];
+                const optionLetters = ['A', 'B', 'C', 'D'];
+                const selectedAns = this.userAnswers[this.currentIndex];
 
-                q.options.forEach((optText, optIdx) => {
+                q.options.forEach((optionText, idx) => {
                     const btn = document.createElement('button');
                     btn.type = 'button';
                     
-                    let bgClasses = "bg-slate-900/80 border-slate-700 text-slate-200 hover:border-indigo-500/80 hover:bg-slate-800";
-                    let iconHtml = `<span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center text-xs font-bold mr-3">${String.fromCharCode(65 + optIdx)}</span>`;
-
-                    if (userAns !== null) {
-                        if (optIdx === userAns) {
-                            if (userAns === q.answer) {
-                                bgClasses = "bg-emerald-950/80 border-emerald-500 text-emerald-200 font-bold";
-                                iconHtml = `<span class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-xs font-bold mr-3"><i class="fa-solid fa-check"></i></span>`;
-                            } else {
-                                bgClasses = "bg-rose-950/80 border-rose-500 text-rose-200 font-bold";
-                                iconHtml = `<span class="w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold mr-3"><i class="fa-solid fa-xmark"></i></span>`;
-                            }
-                        } else if (optIdx === q.answer && (this.player.mode === 'practice' || userAns !== null)) {
-                            bgClasses = "bg-emerald-950/40 border-emerald-500/50 text-emerald-300 font-semibold";
-                            iconHtml = `<span class="w-6 h-6 rounded-full bg-emerald-500/30 text-emerald-300 flex items-center justify-center text-xs font-bold mr-3"><i class="fa-solid fa-check"></i></span>`;
+                    let bgClasses = 'bg-slate-900/80 border-slate-700 hover:border-indigo-500 hover:bg-slate-800 text-slate-200';
+                    
+                    if (selectedAns !== null) {
+                        if (idx === q.answer) {
+                            bgClasses = 'bg-emerald-900/40 border-emerald-500 text-emerald-200 font-semibold';
+                        } else if (idx === selectedAns) {
+                            bgClasses = 'bg-rose-900/40 border-rose-500 text-rose-200';
                         }
                     }
 
-                    btn.className = `w-full text-left p-4 rounded-2xl border ${bgClasses} transition-all flex items-center text-xs sm:text-sm font-medium leading-relaxed`;
-                    btn.innerHTML = `${iconHtml} <span class="flex-grow">${optText}</span>`;
-                    
-                    btn.onclick = () => this.selectOption(optIdx);
+                    btn.className = `w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3 text-xs sm:text-sm ${bgClasses}`;
+                    btn.onclick = () => this.selectOption(idx);
+
+                    btn.innerHTML = `
+                        <span class="w-6 h-6 rounded-lg bg-slate-800 border border-slate-600 flex items-center justify-center font-bold text-xs shrink-0">${optionLetters[idx]}</span>
+                        <span class="leading-relaxed mt-0.5">${optionText}</span>
+                    `;
+
                     optionsContainer.appendChild(btn);
                 });
 
-                // Explanation Box Handling
                 const explanationBox = document.getElementById('explanation-box');
-                if (userAns !== null) {
-                    document.getElementById('explanation-text').innerText = q.explanation;
+                if (selectedAns !== null) {
                     explanationBox.classList.remove('hidden');
+                    document.getElementById('explanation-text').textContent = q.explanation;
                 } else {
                     explanationBox.classList.add('hidden');
                 }
 
-                // Prev / Next button state
-                document.getElementById('prev-btn').disabled = (this.currentIndex === 0);
-                const nextBtn = document.getElementById('next-btn');
-                if (this.currentIndex === total - 1) {
-                    nextBtn.innerHTML = `Selesai Kuis <i class="fa-solid fa-flag-checkered"></i>`;
-                    nextBtn.className = "px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-emerald-600/30 flex items-center gap-2";
-                } else {
-                    nextBtn.innerHTML = `Selanjutnya <i class="fa-solid fa-arrow-right"></i>`;
-                    nextBtn.className = "px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2";
-                }
+                this.updateLiveScore();
             }
 
-            selectOption(optIdx) {
-                if (this.userAnswers[this.currentIndex] !== null) return; // Locked once answered
+            selectOption(index) {
+                if (this.userAnswers[this.currentIndex] !== null) return;
+                
+                this.userAnswers[this.currentIndex] = index;
+                const q = this.questions[this.currentIndex];
 
-                this.userAnswers[this.currentIndex] = optIdx;
-                const isCorrect = (optIdx === this.questions[this.currentIndex].answer);
-
-                if (isCorrect) {
+                if (index === q.answer) {
                     audio.playCorrect();
                 } else {
                     audio.playWrong();
@@ -1153,13 +1111,13 @@ function doPost(e) {
                 this.renderQuestion();
             }
 
-            nextQuestion() {
-                if (this.currentIndex < this.questions.length - 1) {
-                    this.currentIndex++;
-                    this.renderQuestion();
-                } else {
-                    this.finishQuiz();
-                }
+            updateLiveScore() {
+                let correctCount = 0;
+                this.userAnswers.forEach((ans, idx) => {
+                    if (ans === this.questions[idx].answer) correctCount++;
+                });
+                const totalScore = Math.round((correctCount / 30) * 100);
+                document.getElementById('quiz-score').textContent = `${totalScore} Poin`;
             }
 
             prevQuestion() {
@@ -1169,73 +1127,112 @@ function doPost(e) {
                 }
             }
 
-            finishQuiz() {
-                this.stopTimer();
-
-                const correctCount = this.userAnswers.reduce((acc, ans, idx) => {
-                    return ans === this.questions[idx].answer ? acc + 1 : acc;
-                }, 0);
-                const wrongCount = 30 - correctCount;
-                const score = Math.round((correctCount / 30) * 100);
-
-                const mins = String(Math.floor(this.timerSeconds / 60)).padStart(2, '0');
-                const secs = String(this.timerSeconds % 60).padStart(2, '0');
-                const timeStr = `${mins}:${secs}`;
-
-                document.getElementById('result-score-num').innerText = score;
-                document.getElementById('result-correct-count').innerText = correctCount;
-                document.getElementById('result-wrong-count').innerText = wrongCount;
-                document.getElementById('result-time-spent').innerText = timeStr;
-
-                if (score >= 80) {
-                    document.getElementById('result-title').innerText = "Luar Biasa! Prestasi Gemilang 🎉";
-                    document.getElementById('result-subtitle').innerText = "Pemahaman Anda tentang IPS Tema 01 sangat mendalam!";
-                    try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); } catch(e){}
-                } else if (score >= 60) {
-                    document.getElementById('result-title').innerText = "Bagus! Terus Tingkatkan 👍";
-                    document.getElementById('result-subtitle').innerText = "Hasil cukup baik, pelajari kembali soal yang belum tepat.";
+            nextQuestion() {
+                if (this.currentIndex < 29) {
+                    this.currentIndex++;
+                    this.renderQuestion();
                 } else {
-                    document.getElementById('result-title').innerText = "Tetap Semangat Belajar! 💪";
-                    document.getElementById('result-subtitle').innerText = "Jangan berkecil hati, pelajari rangkuman materi dan coba kembali.";
+                    this.finishQuiz();
+                }
+            }
+
+            finishQuiz() {
+                if (this.timerInterval) clearInterval(this.timerInterval);
+
+                let correct = 0;
+                this.questions.forEach((q, idx) => {
+                    if (this.userAnswers[idx] === q.answer) correct++;
+                });
+
+                const score = Math.round((correct / 30) * 100);
+                const wrong = 30 - correct;
+                const timeSpent = document.getElementById('quiz-timer').textContent;
+
+                document.getElementById('result-score-num').textContent = score;
+                document.getElementById('result-correct-count').textContent = correct;
+                document.getElementById('result-wrong-count').textContent = wrong;
+                document.getElementById('result-time-spent').textContent = timeSpent;
+
+                if (score >= 70 && typeof confetti === 'function') {
+                    confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
                 }
 
                 this.hideAllViews();
                 document.getElementById('view-result').classList.remove('hidden');
 
-                // Send data to Spreadsheet Real-Time
-                this.sendDataToSpreadsheet({
+                this.sendToSpreadsheet(score, correct, wrong, timeSpent);
+            }
+
+            saveSheetUrl() {
+                const url = document.getElementById('sheet-url-input').value.trim();
+                this.sheetUrl = url;
+                localStorage.setItem('eduquest_sheet_url', url);
+                this.showToast("URL Spreadsheet berhasil disimpan!", "success");
+                this.updateSheetStatusHome();
+            }
+
+            updateSheetStatusHome() {
+                const statusText = document.getElementById('sheet-status-text');
+                if (!statusText) return;
+
+                if (this.sheetUrl && !this.sheetUrl.includes("MASUKKAN_URL")) {
+                    statusText.textContent = "Koneksi Google Apps Script Aktif! Nilai siswa akan terisi otomatis secara real-time ke Google Spreadsheet Anda.";
+                } else {
+                    statusText.textContent = "Menggunakan Mode Lokal (Hasil disimpan di Browser & siap di-ekspor ke Excel/CSV). Sambungkan ke Google Sheets Web App untuk simpan otomatis real-time!";
+                }
+            }
+
+            testSheetConnection() {
+                if (!this.sheetUrl || this.sheetUrl.includes("MASUKKAN_URL")) {
+                    this.showToast("Harap masukkan URL Google Apps Script yang valid!", "warning");
+                    return;
+                }
+                this.showToast("Menguji koneksi...", "info");
+                fetch(this.sheetUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        timestamp: new Date().toLocaleString("id-ID"),
+                        name: "Uji Koneksi",
+                        class: "7-A",
+                        no: "00",
+                        score: 100,
+                        correct: 30,
+                        wrong: 0,
+                        mode: "Test",
+                        timeSpent: "00:00"
+                    })
+                }).then(() => {
+                    this.showToast("Pengiriman sampel berhasil dikirim ke Apps Script!", "success");
+                }).catch(err => {
+                    this.showToast("Gagal terhubung ke URL Spreadsheet.", "error");
+                });
+            }
+
+            sendToSpreadsheet(score, correct, wrong, timeSpent) {
+                const title = document.getElementById('sheet-save-title');
+                const msg = document.getElementById('sheet-save-msg');
+                const spinner = document.getElementById('sheet-save-spinner');
+
+                if (!this.sheetUrl || this.sheetUrl.includes("MASUKKAN_URL")) {
+                    if (spinner) spinner.className = "fa-solid fa-circle-check text-amber-400 text-lg";
+                    if (title) title.textContent = "Hasil Disimpan Lokal";
+                    if (msg) msg.textContent = "Data tersimpan di browser & siap di-download CSV. Tambahkan URL Apps Script untuk auto-sync.";
+                    return;
+                }
+
+                const payload = {
                     timestamp: new Date().toLocaleString("id-ID"),
                     name: this.player.name,
                     class: this.player.class,
                     no: this.player.no,
                     score: score,
-                    correct: correctCount,
-                    wrong: wrongCount,
-                    mode: this.player.mode === 'exam' ? 'Ujian' : 'Latihan',
-                    timeSpent: timeStr
-                });
-            }
-
-            sendDataToSpreadsheet(payload) {
-                const spinner = document.getElementById('sheet-save-spinner');
-                const title = document.getElementById('sheet-save-title');
-                const msg = document.getElementById('sheet-save-msg');
-
-                // Always save locally in history
-                let history = JSON.parse(localStorage.getItem('eduquest_results') || '[]');
-                history.push(payload);
-                localStorage.setItem('eduquest_results', JSON.stringify(history));
-
-                if (!this.sheetUrl) {
-                    spinner.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
-                    title.innerText = "Tersimpan di Memori Lokal Browser";
-                    msg.innerText = "Dapat diunduh kapan saja melalui tombol 'Download Rekap CSV'.";
-                    return;
-                }
-
-                spinner.className = "fa-solid fa-spinner fa-spin text-emerald-400 text-lg";
-                title.innerText = "Mengirim Data ke Google Spreadsheet...";
-                msg.innerText = "Menghubungkan ke Endpoint Web App...";
+                    correct: correct,
+                    wrong: wrong,
+                    mode: this.player.mode === 'exam' ? 'Mode Ujian' : 'Mode Santai',
+                    timeSpent: timeSpent
+                };
 
                 fetch(this.sheetUrl, {
                     method: 'POST',
@@ -1243,14 +1240,13 @@ function doPost(e) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 }).then(() => {
-                    spinner.className = "fa-solid fa-cloud-arrow-up text-emerald-400 text-lg";
-                    title.innerText = "Berhasil Tersimpan di Spreadsheet Real-Time!";
-                    msg.innerText = "Data hasil kuis telah masuk secara otomatis ke Google Sheet Guru.";
-                    this.showToast("Data nilai berhasil disinkronkan ke Spreadsheet!", "success");
-                }).catch(err => {
-                    spinner.className = "fa-solid fa-triangle-exclamation text-amber-400 text-lg";
-                    title.innerText = "Gagal Kirim ke Spreadsheet (Tersimpan Lokal)";
-                    msg.innerText = "Periksa koneksi internet atau ketersediaan URL Web App.";
+                    if (spinner) spinner.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+                    if (title) title.textContent = "Terikirim ke Google Spreadsheet!";
+                    if (msg) msg.textContent = "Data hasil kuis berhasil tersinkronisasi ke Google Spreadsheet secara real-time.";
+                }).catch(() => {
+                    if (spinner) spinner.className = "fa-solid fa-triangle-exclamation text-rose-400 text-lg";
+                    if (title) title.textContent = "Gagal Mengirim ke Spreadsheet";
+                    if (msg) msg.textContent = "Silakan periksa koneksi internet Anda atau download rekap CSV.";
                 });
             }
 
@@ -1258,41 +1254,39 @@ function doPost(e) {
                 const container = document.getElementById('review-questions-list');
                 container.innerHTML = '';
 
+                const optionLetters = ['A', 'B', 'C', 'D'];
+
                 this.questions.forEach((q, idx) => {
                     const userAns = this.userAnswers[idx];
-                    const isCorrect = (userAns === q.answer);
+                    const isCorrect = userAns === q.answer;
 
-                    const div = document.createElement('div');
-                    div.className = `p-4 rounded-2xl border ${isCorrect ? 'bg-slate-900/60 border-emerald-500/40' : 'bg-slate-900/60 border-rose-500/40'} space-y-2 text-xs`;
+                    const item = document.createElement('div');
+                    item.className = 'bg-slate-900/80 border border-slate-700/80 rounded-2xl p-4 space-y-3';
 
-                    let statusBadge = isCorrect 
-                        ? `<span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded font-bold"><i class="fa-solid fa-check mr-1"></i> BENAR</span>`
-                        : `<span class="px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded font-bold"><i class="fa-solid fa-xmark mr-1"></i> SALAH / TIDAK DIJAWAB</span>`;
+                    let userAnsText = userAns !== null ? `${optionLetters[userAns]}. ${q.options[userAns]}` : "Tidak dijawab";
+                    let keyAnsText = `${optionLetters[q.answer]}. ${q.options[q.answer]}`;
 
-                    let userChoiceText = userAns !== null ? `${String.fromCharCode(65 + userAns)}. ${q.options[userAns]}` : "Tidak dijawab";
-                    let keyText = `${String.fromCharCode(65 + q.answer)}. ${q.options[q.answer]}`;
-
-                    div.innerHTML = `
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                            <span class="font-bold text-slate-300">Soal #${idx + 1} - ${q.category}</span>
-                            ${statusBadge}
+                    item.innerHTML = `
+                        <div class="flex items-start justify-between gap-2">
+                            <span class="font-bold text-xs ${isCorrect ? 'text-emerald-400' : 'text-rose-400'}">
+                                ${idx + 1}. [${q.category}] ${isCorrect ? '✓ Benar' : '✗ Salah / Belum Diisi'}
+                            </span>
                         </div>
-                        <p class="font-semibold text-white text-xs leading-relaxed">${q.question}</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px]">
-                            <div class="p-2 rounded-lg bg-slate-950 border border-slate-800">
-                                <span class="text-slate-400 block">Jawaban Anda:</span>
-                                <span class="${isCorrect ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}">${userChoiceText}</span>
+                        <p class="text-xs text-white font-semibold leading-relaxed">${q.question}</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] pt-1">
+                            <div class="p-2.5 rounded-xl ${isCorrect ? 'bg-emerald-950/40 border border-emerald-500/30 text-emerald-300' : 'bg-rose-950/40 border border-rose-500/30 text-rose-300'}">
+                                <strong>Jawaban Anda:</strong> ${userAnsText}
                             </div>
-                            <div class="p-2 rounded-lg bg-slate-950 border border-slate-800">
-                                <span class="text-slate-400 block">Kunci Jawaban:</span>
-                                <span class="text-emerald-400 font-bold">${keyText}</span>
+                            <div class="p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-indigo-300">
+                                <strong>Kunci Jawaban:</strong> ${keyAnsText}
                             </div>
                         </div>
-                        <div class="p-2.5 rounded-lg bg-indigo-950/40 border border-indigo-500/20 text-indigo-200 text-[11px]">
-                            <strong class="text-indigo-300">Pembahasan:</strong> ${q.explanation}
+                        <div class="p-3 bg-slate-950 rounded-xl text-[11px] text-slate-300 border border-slate-800 leading-relaxed">
+                            <strong class="text-amber-400"><i class="fa-solid fa-lightbulb mr-1"></i> Pembahasan:</strong> ${q.explanation}
                         </div>
                     `;
-                    container.appendChild(div);
+
+                    container.appendChild(item);
                 });
 
                 document.getElementById('review-modal').classList.remove('hidden');
@@ -1303,66 +1297,60 @@ function doPost(e) {
             }
 
             exportToCSV() {
-                let history = JSON.parse(localStorage.getItem('eduquest_results') || '[]');
-                if (history.length === 0) {
-                    this.showToast("Belum ada data nilai tersimpan.", "warning");
-                    return;
-                }
+                let correct = 0;
+                this.questions.forEach((q, idx) => {
+                    if (this.userAnswers[idx] === q.answer) correct++;
+                });
+                const score = Math.round((correct / 30) * 100);
+                const wrong = 30 - correct;
+                const timeSpent = document.getElementById('quiz-timer').textContent;
 
                 let csvContent = "data:text/csv;charset=utf-8,";
-                csvContent += "Waktu,Nama Peserta,Kelas,No Absen,Skor Total,Benar,Salah,Mode,Durasi\n";
-
-                history.forEach(row => {
-                    csvContent += `"${row.timestamp}","${row.name}","${row.class}","${row.no}","${row.score}","${row.correct}","${row.wrong}","${row.mode}","${row.timeSpent}"\n`;
-                });
+                csvContent += "Tanggal & Waktu,Nama Peserta,Kelas,No Absen,Skor Total,Benar,Salah,Mode,Durasi\n";
+                csvContent += `"${new Date().toLocaleString('id-ID')}","${this.player.name}","${this.player.class}","${this.player.no}",${score},${correct},${wrong},"${this.player.mode}",${timeSpent}\n`;
 
                 const encodedUri = encodeURI(csvContent);
                 const link = document.createElement("a");
                 link.setAttribute("href", encodedUri);
-                link.setAttribute("download", `Rekap_Nilai_IPS7_Tema1_${new Date().toISOString().slice(0,10)}.csv`);
+                link.setAttribute("download", `Hasil_Kuis_IPS7_${this.player.name.replace(/\s+/g, '_')}.csv`);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
 
-                this.showToast("File CSV Berhasil Diunduh!", "success");
+                this.showToast("Rekap CSV berhasil di-download!", "success");
             }
 
             showToast(message, type = "info") {
-                const container = document.getElementById('toast-container');
+                const toastContainer = document.getElementById('toast-container');
+                if (!toastContainer) return;
+
                 const toast = document.createElement('div');
-                
-                let bg = "bg-slate-800 text-slate-100 border-slate-700";
-                let icon = "fa-circle-info text-blue-400";
+                let bgColors = "bg-slate-800 border-indigo-500 text-indigo-300";
+                if (type === "success") bgColors = "bg-emerald-950 border-emerald-500 text-emerald-200";
+                if (type === "warning") bgColors = "bg-amber-950 border-amber-500 text-amber-200";
+                if (type === "error") bgColors = "bg-rose-950 border-rose-500 text-rose-200";
 
-                if (type === "success") {
-                    bg = "bg-emerald-900/90 text-emerald-100 border-emerald-500/50";
-                    icon = "fa-circle-check text-emerald-400";
-                } else if (type === "warning") {
-                    bg = "bg-amber-900/90 text-amber-100 border-amber-500/50";
-                    icon = "fa-triangle-exclamation text-amber-400";
-                } else if (type === "error") {
-                    bg = "bg-rose-900/90 text-rose-100 border-rose-500/50";
-                    icon = "fa-circle-xmark text-rose-400";
-                }
+                toast.className = `px-4 py-3 rounded-xl border text-xs font-semibold shadow-lg transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto flex items-center gap-2 ${bgColors}`;
+                toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${message}`;
 
-                toast.className = `px-4 py-3 rounded-2xl border ${bg} text-xs font-semibold shadow-xl flex items-center gap-2 transform transition-all duration-300 pointer-events-auto max-w-sm`;
-                toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i> <span>${message}</span>`;
-
-                container.appendChild(toast);
+                toastContainer.appendChild(toast);
 
                 setTimeout(() => {
-                    toast.style.opacity = '0';
+                    toast.classList.remove('translate-y-2', 'opacity-0');
+                }, 10);
+
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
                     setTimeout(() => toast.remove(), 300);
                 }, 3000);
             }
         }
 
-        // Initialize App Instance
         let app;
-        window.onload = function() {
+        window.addEventListener('DOMContentLoaded', () => {
             app = new QuizApp();
-            app.init();
-        };
+            window.app = app;
+        });
     </script>
 </body>
 </html>
